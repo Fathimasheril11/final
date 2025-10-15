@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Quiz</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/css/custom.css}" rel="stylesheet">
+</head>
+<body>
+<div th:fragment="content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 th:text="${quiz.title}">Quiz Title</h1>
+        <div class="progress" style="width: 200px;">
+            <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+        </div>
+    </div>
+    <p th:text="${quiz.description}">Description</p>
+    <p class="text-muted">Total Questions: <span th:text="${#lists.size(quiz.questions)}"></span></p>
+
+    <form th:action="@{/participant/submit-quiz/{id}(id=${quiz.id})}" method="post" id="quizForm">
+        <div th:each="question, iter : ${quiz.questions}" class="mb-4 p-3 border rounded question-block">
+            <h5><span th:text="${iter.index + 1} + '. '"></span><span th:text="${question.text}"></span></h5>
+            <div th:each="optionIndex : ${#numbers.sequence(0, 3)}" th:with="option=${'ABCD'[optionIndex]}" class="form-check">
+                <input class="form-check-input" type="radio" name="answer_${question.id}" th:value="${option}" id="q${question.id}_opt${option}">
+                <label class="form-check-label" th:for="'q' + ${question.id} + '_opt' + ${option}" th:text="${option + ': ' + question.answers[optionIndex]}"></label>
+            </div>
+            <div th:if="${#fields.hasErrors('answer_' + ${question.id})}" class="text-danger small" th:errors="*{answers[__${question.id}__]}">Please select an option</div>
+        </div>
+        <button type="submit" class="btn btn-success btn-lg" id="submitBtn">Submit Quiz</button>
+    </form>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const questions = /*[[${#lists.size(quiz.questions)}]]*/ 0;
+        const radios = document.querySelectorAll('input[type="radio"]');
+        let answered = 0;
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', updateProgress);
+        });
+
+        function updateProgress() {
+            answered = document.querySelectorAll('input[type="radio"]:checked').length;
+            const percentage = Math.round((answered / questions) * 100);
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressBar').textContent = answered + '/' + questions;
+        }
+
+        document.getElementById('quizForm').addEventListener('submit', function(e) {
+            if (answered < questions) {
+                e.preventDefault();
+                alert('Please answer all questions!');
+                return;
+            }
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+        });
+        /*]]>*/
+    </script>
+</div>
+
+</body>
+</html>
