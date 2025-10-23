@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Document</title>
+</head>
+<body>
+<div class="container mt-5">
+    <h2>All Theaters</h2>
+
+    <a th:href="@{/admin/add-theater}" class="btn btn-success mb-3">Add New Theater</a>
+
+    <table class="table table-bordered table-striped">
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Capacity</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="theater, iterStat : ${theaters}">
+            <td th:text="${iterStat.count}">1</td>
+            <td th:text="${theater.name}">Theater Name</td>
+            <td th:text="${theater.location}">Location</td>
+            <td th:text="${theater.capacity}">100</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>
